@@ -9,8 +9,8 @@ import dev.gisela.paddle_tennis_couch_backend.implementations.IEncryptFacade;
 @Component
 public class EncoderFacade implements IEncryptFacade {
 
-    PasswordEncoder bCryptPasswordEncoder;
-    Base64Encoder base64Encoder;
+    private final PasswordEncoder bCryptPasswordEncoder;
+    private final Base64Encoder base64Encoder;
 
     public EncoderFacade(PasswordEncoder bCryptPasswordEncoder, Base64Encoder base64Encoder) {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
@@ -19,27 +19,19 @@ public class EncoderFacade implements IEncryptFacade {
 
     @Override
     public String encode(String type, String data) {
-        String dataEncrypted = "";
-
-        if (type == "bcrypt") {
-            dataEncrypted = bCryptPasswordEncoder.encode(data);
+        if ("bcrypt".equalsIgnoreCase(type)) {
+            return bCryptPasswordEncoder.encode(data);
+        } else if ("base64".equalsIgnoreCase(type)) {
+            return base64Encoder.encode(data);
         }
-        if (type == "base64") {
-            dataEncrypted = base64Encoder.encode(data);
-        }
-
-        return dataEncrypted;
+        throw new IllegalArgumentException("Tipo de codificación no soportado: " + type);
     }
 
     @Override
     public String decode(String type, String data) {
-        String dataDecoded = "";
-
-        if (type == "base64") {
-            dataDecoded = base64Encoder.decode(data);
+        if ("base64".equalsIgnoreCase(type)) {
+            return base64Encoder.decode(data);
         }
-
-        return dataDecoded;
+        throw new IllegalArgumentException("Tipo de decodificación no soportado: " + type);
     }
-
 }

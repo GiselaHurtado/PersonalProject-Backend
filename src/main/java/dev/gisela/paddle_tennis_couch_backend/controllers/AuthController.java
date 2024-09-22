@@ -17,7 +17,7 @@ import dev.gisela.paddle_tennis_couch_backend.models.User;
 import dev.gisela.paddle_tennis_couch_backend.repositories.UserRepository;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("${app.api-endpoint}/api/v1")
 public class AuthController {
 
     private final UserRepository userRepository;
@@ -28,7 +28,6 @@ public class AuthController {
 
     @GetMapping(path = "/login")
     public ResponseEntity<Map<String, String>> login() {
-
         SecurityContext contextHolder = SecurityContextHolder.getContext();
         Authentication auth = contextHolder.getAuthentication();
 

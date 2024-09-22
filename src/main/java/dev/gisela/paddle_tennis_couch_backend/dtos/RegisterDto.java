@@ -18,6 +18,10 @@ public class RegisterDto {
     @Email(message = "Email should be valid")
     private String email;
 
+    public RegisterDto(String username2, String password2) {
+       
+    }
+
     public String getUsername() {
         return username;
     }

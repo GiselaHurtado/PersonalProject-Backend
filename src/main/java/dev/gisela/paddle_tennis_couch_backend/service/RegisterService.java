@@ -7,6 +7,7 @@ import dev.gisela.paddle_tennis_couch_backend.models.Role;
 import dev.gisela.paddle_tennis_couch_backend.models.User;
 import dev.gisela.paddle_tennis_couch_backend.repositories.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 import java.util.HashSet;
@@ -30,13 +31,13 @@ public class RegisterService {
         this.emailService = emailService;
     }
 
+    @Transactional
     public String registerUser(RegisterDto newRegisterDto) {
         if (userRepository.findByUsername(newRegisterDto.getUsername()).isPresent()) {
             throw new RuntimeException("El usuario ya existe");
         }
 
-        String passwordDecoded = encoderFacade.decode("base64", newRegisterDto.getPassword());
-        String passwordEncoded = encoderFacade.encode("bcrypt", passwordDecoded);
+        String passwordEncoded = encoderFacade.encode("bcrypt", newRegisterDto.getPassword());
 
         User user = new User(newRegisterDto.getUsername(), passwordEncoded);
         user.setRoles(assignDefaultRole());
