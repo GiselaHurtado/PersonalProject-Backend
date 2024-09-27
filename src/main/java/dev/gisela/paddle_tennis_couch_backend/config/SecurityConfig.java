@@ -2,6 +2,7 @@ package dev.gisela.paddle_tennis_couch_backend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -23,49 +24,49 @@ public class SecurityConfig {
 
     private final JpaUserDetailsService jpaUserDetailsService;
     private final MyBasicAuthenticationEntryPoint myBasicAuthenticationEntryPoint;
-    private final AppProperties appProperties;
 
+   
     public SecurityConfig(JpaUserDetailsService jpaUserDetailsService,
-            MyBasicAuthenticationEntryPoint basicEntryPoint,
-            AppProperties appProperties) {
+                          MyBasicAuthenticationEntryPoint basicEntryPoint) {
         this.jpaUserDetailsService = jpaUserDetailsService;
         this.myBasicAuthenticationEntryPoint = basicEntryPoint;
-        this.appProperties = appProperties;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfiguration()))
-                .csrf(csrf -> csrf
-                .ignoringRequestMatchers("/h2-console/**")
-                .disable())
-                .authorizeHttpRequests(auth -> auth
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/h2-console/**").permitAll()
-                .requestMatchers(appProperties.getApiEndpoint() + "/api/v1/register").permitAll()
-                .requestMatchers(appProperties.getApiEndpoint() + "/api/v1/test").permitAll()
-                .requestMatchers(appProperties.getApiEndpoint() + "/login").authenticated()
+                
+                .requestMatchers(HttpMethod.POST, "/api/v1/register").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/v1/login").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/v1/users").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/v1/users").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/v1/users").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/v1/users").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/v1/users").hasRole("USER")
                 .anyRequest().authenticated()
-                )
-                .headers(headers -> headers
-                .contentSecurityPolicy(csp -> csp
-                .policyDirectives("frame-ancestors 'self'")
-                )
-                )
-                .httpBasic(basic -> basic.authenticationEntryPoint(myBasicAuthenticationEntryPoint))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-                .userDetailsService(jpaUserDetailsService);
+            )
+            .headers(headers -> headers
+                .frameOptions(frame -> frame.sameOrigin())
+            )
+            .httpBasic(basic -> basic.authenticationEntryPoint(myBasicAuthenticationEntryPoint))
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .userDetailsService(jpaUserDetailsService);
 
         return http.build();
     }
-
     @Bean
-    public CorsConfigurationSource corsConfiguration() {
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));  
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "newUser"));
+        configuration.setExposedHeaders(Arrays.asList("Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"));
         configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

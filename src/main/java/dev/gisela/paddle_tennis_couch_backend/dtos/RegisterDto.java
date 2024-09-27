@@ -18,9 +18,16 @@ public class RegisterDto {
     @Email(message = "Email should be valid")
     private String email;
 
-    public RegisterDto(String username2, String password2) {
-       
+    // Constructor vacío necesario para Jackson
+    public RegisterDto() {}
+
+    public RegisterDto(String username, String email, String password) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
     }
+
+   
 
     public String getUsername() {
         return username;

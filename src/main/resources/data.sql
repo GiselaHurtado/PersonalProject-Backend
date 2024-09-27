@@ -1,16 +1,15 @@
 -- Insertar roles
-INSERT INTO roles (name) VALUES ('ROLE_USER');
-INSERT INTO roles (name) VALUES ('ROLE_ADMIN');
+INSERT INTO roles (name) VALUES ('USER');
+INSERT INTO roles (name) VALUES ('ADMIN');
 
--- Insertar usuarios (asegúrate de que las contraseñas estén codificadas correctamente)
-INSERT INTO users (username, password) VALUES ('usuario1', '$2a$12$K0PNWuP6xtBLdt8iFc.Jee6eJuCOHJx/y7gpQdp.I5EXg0Ub.JnEa');
-INSERT INTO users (username, password) VALUES ('admin1', '$2a$12$K0PNWuP6xtBLdt8iFc.Jee6eJuCOHJx/y7gpQdp.I5EXg0Ub.JnEa');
+-- Insertar usuarios/password 
+INSERT INTO users (username, email, password) VALUES ('user', 'user@example.com', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubh4a');
+INSERT INTO users (username, email, password) VALUES ('admin', 'admin@example.com', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubh4a');
+-- Insertar un nuevo usuario de prueba con una contraseña simple
+INSERT INTO users (username, email, password) VALUES ('testuser', 'testuser@example.com', 'password123');
+
 
 -- Asignar roles a usuarios
-INSERT INTO user_roles (user_id, role_id) VALUES (1, 1); -- usuario1 tiene ROLE_USER
-INSERT INTO user_roles (user_id, role_id) VALUES (2, 1); -- admin1 tiene ROLE_USER
-INSERT INTO user_roles (user_id, role_id) VALUES (2, 2); -- admin1 también tiene ROLE_ADMIN
-
--- Insertar perfiles
-INSERT INTO profiles (email, user_id) VALUES ('usuario1@example.com', 1);
-INSERT INTO profiles (email, user_id) VALUES ('admin1@example.com', 2);
+INSERT INTO user_roles (user_id, role_id) SELECT u.user_id, r.role_id FROM users u, roles r WHERE u.username = 'user' AND r.name = 'USER';
+INSERT INTO user_roles (user_id, role_id) SELECT u.user_id, r.role_id FROM users u, roles r WHERE u.username = 'admin' AND r.name = 'USER';
+INSERT INTO user_roles (user_id, role_id) SELECT u.user_id, r.role_id FROM users u, roles r WHERE u.username = 'admin' AND r.name = 'ADMIN';

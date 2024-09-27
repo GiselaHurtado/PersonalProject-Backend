@@ -1,7 +1,6 @@
 package dev.gisela.paddle_tennis_couch_backend.models;
 
 import jakarta.persistence.*;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -14,8 +13,13 @@ public class User {
     @Column(name = "user_id")
     private Long userId;
 
+    @Column(unique = true)
     private String username;
+
     private String password;
+
+    @Column(unique = true)
+    private String email;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -25,16 +29,24 @@ public class User {
     )
     private Set<Role> roles = new HashSet<>();
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private Profile profile;
-
+  
     public User() {
+        this.roles = new HashSet<>();
     }
 
-    public User(String username, String password) {
+ 
+    public User(String username, String email, String password) {
+        this();  
         this.username = username;
+        this.email = email;
         this.password = password;
     }
+
+   
+    public User(String username2, String passwordEncoded) {
+       
+    }
+
 
     public Long getUserId() {
         return userId;
@@ -60,19 +72,19 @@ public class User {
         this.password = password;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public Set<Role> getRoles() {
         return roles;
     }
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
-    }
-
-    public Profile getProfile() {
-        return profile;
-    }
-
-    public void setProfile(Profile profile) {
-        this.profile = profile;
     }
 }

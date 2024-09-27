@@ -23,14 +23,16 @@ public class RegisterController {
     @PostMapping("/register")
     public ResponseEntity<String> register(
             @RequestHeader("X-Username") String encodedUsername,
+            @RequestHeader("X-Email") String encodedEmail,
             @RequestHeader("X-Password") String encodedPassword) {
         try {
             String username = base64Encoder.decode(encodedUsername);
+            String email = base64Encoder.decode(encodedEmail);
             String password = base64Encoder.decode(encodedPassword);
             
-            System.out.println("Recibida solicitud de registro para: " + username);
+            System.out.println("Received registration request for: " + username);
             
-            RegisterDto newUser = new RegisterDto(username, password);
+            RegisterDto newUser = new RegisterDto(username, email, password);
             String result = registerService.registerUser(newUser);
             return ResponseEntity.status(HttpStatus.CREATED).body(result);
         } catch (Exception e) {

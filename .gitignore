@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Ignorar las credenciales de Google
+src/main/resources/credentials.json
