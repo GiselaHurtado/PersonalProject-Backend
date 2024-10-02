@@ -1,11 +1,11 @@
 package dev.gisela.paddle_tennis_couch_backend.models;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.Collection;
-import java.util.stream.Collectors;
 
 public class SecurityUser implements UserDetails {
 
@@ -16,20 +16,24 @@ public class SecurityUser implements UserDetails {
     }
 
     @Override
-    public String getUsername() {
-        return user.getUsername();
-    }
-
-    @Override
     public String getPassword() {
         return user.getPassword();
     }
 
     @Override
+    public String getUsername() {
+        return user.getUsername();
+    }
+
+    @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return user.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
-                .collect(Collectors.toList());
+        Set<GrantedAuthority> authorities = new HashSet<>();
+
+        for (Role role : user.getRoles()) {
+            authorities.add(new SimpleGrantedAuthority(role.getName()));
+        }
+
+        return authorities;
     }
 
     @Override
@@ -50,9 +54,5 @@ public class SecurityUser implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
-    }
-
-    public User getUser() {
-        return user;
     }
 }

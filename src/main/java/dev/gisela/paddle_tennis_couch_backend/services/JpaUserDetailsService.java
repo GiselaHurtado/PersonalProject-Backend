@@ -1,4 +1,4 @@
-package dev.gisela.paddle_tennis_couch_backend.service;
+package dev.gisela.paddle_tennis_couch_backend.services;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

@@ -9,14 +9,17 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import dev.gisela.paddle_tennis_couch_backend.facades.encryptations.Base64Encoder;
-import dev.gisela.paddle_tennis_couch_backend.service.JpaUserDetailsService;
 
+import java.time.Duration;
 import java.util.Arrays;
+
+import dev.gisela.paddle_tennis_couch_backend.services.JpaUserDetailsService;
 
 @Configuration
 @EnableWebSecurity
@@ -25,9 +28,7 @@ public class SecurityConfig {
     private final JpaUserDetailsService jpaUserDetailsService;
     private final MyBasicAuthenticationEntryPoint myBasicAuthenticationEntryPoint;
 
-   
-    public SecurityConfig(JpaUserDetailsService jpaUserDetailsService,
-                          MyBasicAuthenticationEntryPoint basicEntryPoint) {
+    public SecurityConfig(JpaUserDetailsService jpaUserDetailsService, MyBasicAuthenticationEntryPoint basicEntryPoint) {
         this.jpaUserDetailsService = jpaUserDetailsService;
         this.myBasicAuthenticationEntryPoint = basicEntryPoint;
     }
@@ -35,38 +36,37 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .cors(cors -> cors.disable()) 
             .csrf(csrf -> csrf.disable())
+            .formLogin(form -> form.disable())
+            .logout(out -> out
+                .logoutUrl("/api/v1/logout")
+                .deleteCookies("JSESSIONID"))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/h2-console/**").permitAll()
-                
+                .requestMatchers(AntPathRequestMatcher.antMatcher("/h2-console/**")).permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/register").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/v1/register").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/v1/login").permitAll()
+                .requestMatchers(HttpMethod.GET,  "/api/v1/login").hasAnyRole("USER", "ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/v1/users").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/v1/users").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/v1/users").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/users").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.GET, "/api/v1/users").hasRole("USER")
-                .anyRequest().authenticated()
-            )
-            .headers(headers -> headers
-                .frameOptions(frame -> frame.sameOrigin())
-            )
+                .anyRequest().authenticated())
+            .userDetailsService(jpaUserDetailsService)
             .httpBasic(basic -> basic.authenticationEntryPoint(myBasicAuthenticationEntryPoint))
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .userDetailsService(jpaUserDetailsService);
-
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)); 
+        http.headers(headers -> headers.frameOptions(frame -> frame.sameOrigin())); 
         return http.build();
     }
+
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));  
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "newUser"));
-        configuration.setExposedHeaders(Arrays.asList("Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"));
         configuration.setAllowCredentials(true);
-        configuration.setMaxAge(3600L);
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("", "Content-Type"));
+        configuration.setMaxAge(Duration.ofHours(1));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
@@ -77,6 +77,7 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+   
     @Bean
     public Base64Encoder base64Encoder() {
         return new Base64Encoder();
