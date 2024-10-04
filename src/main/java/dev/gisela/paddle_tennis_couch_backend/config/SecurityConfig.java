@@ -14,11 +14,10 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import dev.gisela.paddle_tennis_couch_backend.facades.encryptations.Base64Encoder;
-
 import java.time.Duration;
 import java.util.Arrays;
 
+import dev.gisela.paddle_tennis_couch_backend.facades.encryptations.Base64Encoder;
 import dev.gisela.paddle_tennis_couch_backend.services.JpaUserDetailsService;
 
 @Configuration
@@ -36,7 +35,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors(cors -> cors.disable()) 
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .formLogin(form -> form.disable())
             .logout(out -> out
@@ -44,9 +43,9 @@ public class SecurityConfig {
                 .deleteCookies("JSESSIONID"))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(AntPathRequestMatcher.antMatcher("/h2-console/**")).permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/v1/login").permitAll()  // Permitir POST en /login
                 .requestMatchers(HttpMethod.GET, "/api/v1/register").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/v1/register").permitAll()
-                .requestMatchers(HttpMethod.GET,  "/api/v1/login").hasAnyRole("USER", "ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/v1/users").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/v1/users").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/v1/users").hasRole("ADMIN")
@@ -65,7 +64,7 @@ public class SecurityConfig {
         configuration.setAllowCredentials(true);
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("", "Content-Type"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "username", "password", "email", "firstName", "lastName"));
         configuration.setMaxAge(Duration.ofHours(1));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
@@ -76,6 +75,7 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
 
    
     @Bean

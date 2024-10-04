@@ -10,11 +10,13 @@ public class Base64Encoder implements IEncoder {
 
     @Override
     public String encode(String data) {
-        return Base64.getEncoder().encodeToString(data.getBytes());
+        String dataEncoded = Base64.getEncoder().encodeToString(data.getBytes());
+        return dataEncoded;
     }
 
     public String decode(String data) {
         byte[] decodedBytes = Base64.getDecoder().decode(data);
-        return new String(decodedBytes);
+        String dataDecoded = new String(decodedBytes);
+        return dataDecoded;
     }
 }
