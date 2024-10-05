@@ -34,9 +34,9 @@ public class UserController {
 
     @GetMapping("/users")
     public ResponseEntity<List<UserDto>> getAllUsers() {
-        List<UserDto> users = userService.findAllUsers()
-            .stream()
+        List<UserDto> users = userService.findAllUsers().stream()
             .map(user -> new UserDto(
+                user.getId(),  // Incluir el id en el UserDto
                 user.getUsername(),
                 user.getRoles().stream().map(role -> role.getName()).collect(Collectors.toSet()),
                 userService.getEmailByUserId(user.getId())
@@ -62,7 +62,7 @@ public class UserController {
 
             userService.registerNewUser(userDto);
             return new ResponseEntity<>("User registered successfully!", HttpStatus.CREATED); 
-                } catch (Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
         }
     }

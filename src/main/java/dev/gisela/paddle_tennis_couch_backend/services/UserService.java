@@ -114,6 +114,7 @@ public class UserService {
             String email = profileOptional.map(Profile::getEmail).orElse(null);
 
             return Optional.of(new UserDto(
+                user.getId(),  // Incluimos el id aquí también
                 user.getUsername(),
                 user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()),
                 email
