@@ -36,15 +36,12 @@ public class UserService {
             throw new IllegalArgumentException("Email is required");
         }
 
-        // Crear usuario con contraseña cifrada
         User user = new User(userDto.getUsername(), passwordEncoder.encode(userDto.getPassword()), userDto.getEmail());
         userRepository.save(user);
 
-        // Asignar el rol de usuario por defecto
         Set<Role> roles = Set.of(roleService.getRoleByName("ROLE_USER"));
         user.setRoles(roles);
 
-        // Crear y guardar el perfil del usuario
         Profile profile = new Profile(userDto.getEmail(), user);
         profileService.save(profile);
     }
@@ -114,7 +111,7 @@ public class UserService {
             String email = profileOptional.map(Profile::getEmail).orElse(null);
 
             return Optional.of(new UserDto(
-                user.getId(),  // Incluimos el id aquí también
+                user.getId(),  
                 user.getUsername(),
                 user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()),
                 email

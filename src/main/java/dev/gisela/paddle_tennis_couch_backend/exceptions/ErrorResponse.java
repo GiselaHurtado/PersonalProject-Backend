@@ -11,7 +11,7 @@ public class ErrorResponse {
         this.timestamp = timestamp;
     }
 
-    // Getters and setters
+   
     public int getStatus() {
         return status;
     }

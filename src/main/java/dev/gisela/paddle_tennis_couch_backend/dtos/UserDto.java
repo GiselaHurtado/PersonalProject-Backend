@@ -13,14 +13,14 @@ public class UserDto {
     }
 
     public UserDto(Long id, String username, Set<String> roles, String email) {
-        this.id = id;  // Incluir id
+        this.id = id;  
         this.username = username;
         this.roles = roles;
         this.email = email;
     }
 
     public UserDto(Long id, String username, String password, Set<String> roles, String email) {
-        this.id = id;  // Incluir id
+        this.id = id; 
         this.username = username;
         this.password = password;
         this.roles = roles;
