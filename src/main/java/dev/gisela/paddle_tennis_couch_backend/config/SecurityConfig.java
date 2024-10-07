@@ -43,7 +43,7 @@ public class SecurityConfig {
                 .deleteCookies("JSESSIONID"))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(AntPathRequestMatcher.antMatcher("/h2-console/**")).permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/v1/login").permitAll()  // Permitir POST en /login
+                .requestMatchers(HttpMethod.POST, "/api/v1/login").permitAll()  
                 .requestMatchers(HttpMethod.GET, "/api/v1/register").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/v1/register").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/v1/users").hasRole("ADMIN")
